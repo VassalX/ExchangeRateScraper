@@ -12,15 +12,39 @@ url = 'https://markets.businessinsider.com/currencies'
 chrome_driver_path = "./chromedriver.exe"
 chrome_options = Options()
 chrome_options.add_argument('--headless')
-webdriver = webdriver.Chrome(
-    executable_path = chrome_driver_path, options=chrome_options
-)
 
-with webdriver as driver:
-    wait = WebDriverWait(driver,10)
-    driver.get(url)
-    wait.until(presence_of_element_located((By.ID, "currency_container")))
-    results = driver.find_element_by_id('currency_container')
-    print(results)
-
-    
+def get_currencies():
+    currencies = []
+    wbdriver = webdriver.Chrome(executable_path = chrome_driver_path, options=chrome_options)
+    with wbdriver as driver:
+        wait = WebDriverWait(driver,10)
+        driver.get(url)
+        wait.until(presence_of_element_located((By.ID, "currency_container")))
+        result = driver.find_element_by_id('currency_container')
+        soup = BeautifulSoup(result.get_attribute('innerHTML'), 'html.parser')
+        rows = soup.find_all('tr')
+        for row in rows[2:]:
+            tds = row.find_all('td')
+            currency_name_short = tds[0].a.string.split("/")[1]
+            country = tds[1].string.strip()
+            currency_name = tds[2].a.string
+            if not country or country == '-':
+                continue
+            growth = float(tds[4].span.string)
+            price = float(tds[5].string.replace(',','').strip())
+            date = tds[6].find_all('span')[1].string
+            currency = {
+                "currency_name_short": currency_name_short,
+                "country": country,
+                "currency_name": currency_name,
+                "growth": growth,
+                "price": price,
+                "date": date
+            }
+            currencies.append(currency)
+        driver.close()
+        return currencies
+print(*get_currencies(), sep='\n')
+time.sleep(60)
+print("\nlol\n")
+print(*get_currencies(), sep='\n')

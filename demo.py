@@ -5,6 +5,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.expected_conditions import presence_of_element_located
 from bs4 import BeautifulSoup
+from datetime import datetime
 import time
 import sys
 
@@ -32,19 +33,22 @@ def get_currencies():
                 continue
             growth = float(tds[4].span.string)
             price = float(tds[5].string.replace(',','').strip())
-            date = tds[6].find_all('span')[1].string
+            times_str = tds[6].find_all('span')[1].string
+            timestamp = get_timestamp(times_str)
             currency = {
                 "currency_name_short": currency_name_short,
                 "country": country,
                 "currency_name": currency_name,
                 "growth": growth,
                 "price": price,
-                "date": date
+                "timestamp": timestamp
             }
             currencies.append(currency)
         driver.close()
         return currencies
-print(*get_currencies(), sep='\n')
-time.sleep(60)
-print("\nlol\n")
-print(*get_currencies(), sep='\n')
+
+def get_timestamp(times_str):
+    return datetime.strptime(times_str, "%m/%d/%Y %I:%M:%S %p UTC%z").timestamp()
+
+# print(datetime.fromtimestamp(get_timestamp('11/18/2020 05:16:00 PM UTC-0500')).strftime("%d/%m/%y %H:%M:%S %z"))
+print(*get_currencies(),sep='\n')

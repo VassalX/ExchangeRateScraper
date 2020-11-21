@@ -6,13 +6,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.expected_conditions import presence_of_element_located
 from bs4 import BeautifulSoup
 from datetime import datetime
+from threading import Thread
 import time
 import sys
 import json
 import requests
+import asyncio
 
+server_url = sys.argv[1] if len(sys.argv) > 1  else 'http://localhost:5000/'
 url_currencies = 'https://markets.businessinsider.com/currencies'
-url_crypto_currencies = 'https://markets.businessinsider.com/cryptocurrencies'
 chrome_driver_path = "./chromedriver.exe"
 chrome_options = Options()
 chrome_options.add_argument('--headless')
@@ -50,9 +52,27 @@ def get_currencies():
                 "timestamp": timestamp
             }
             currencies.append(currency)
-        driver.close()
         return json.dumps(currencies)
 
-currs = get_currencies()
-response = requests.post('http://localhost:5000/', json=currs)
-print(*response.json(), sep="\n")
+def send_cuurency():
+    requests.post('http://localhost:5000/', json=get_currencies())
+
+async def send_currencies_loop():
+    while True:
+        print(datetime.now().strftime("%H:%M:%S"))
+        t = Thread(target=send_cuurency)
+        t.daemon = True
+        t.start()
+        await asyncio.sleep(60)
+
+if __name__ == '__main__':
+    print(server_url)
+    loop = asyncio.get_event_loop()
+    try:
+        asyncio.ensure_future(send_currencies_loop())
+        loop.run_forever()
+    except:
+        pass
+    finally:
+        print("Closing Loop")
+        loop.close()

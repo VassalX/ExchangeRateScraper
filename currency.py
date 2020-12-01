@@ -13,7 +13,7 @@ import json
 import requests
 import asyncio
 
-server_url = sys.argv[1] if len(sys.argv) > 1  else 'http://localhost:8080/currency/'
+server_url = sys.argv[1] if len(sys.argv) > 1  else 'http://localhost:8080/api/currency/'
 url_currencies = 'https://markets.businessinsider.com/currencies'
 chrome_driver_path = "./chromedriver.exe"
 chrome_options = Options()
@@ -44,17 +44,17 @@ def get_currencies():
                 timestamp = datetime.strptime(tds[6].find_all('span')[1].string, \
                     "%m/%d/%Y %I:%M:%S %p UTC%z").timestamp()
             currency = {
-                "shortName": currency_name_short,
+                "name": currency_name_short,
                 "country": country,
-                "name": currency_name,
+                "fullName": currency_name,
                 "growth": growth,
                 "price": price,
-                "timestamp": timestamp,
+                "lastUpdateTimestamp": timestamp,
                 "type": "cryptocurrency" if not country else "currency"
             }
-            if not [x for x in currencies if x["shortName"]==currency_name_short]:
+            if not [x for x in currencies if x["name"]==currency_name_short or x["fullName"]==currency_name]:
                 currencies.append(currency)
-        print(len(currencies))
+        print(currencies)
         return currencies
 
 def send_cuurency():

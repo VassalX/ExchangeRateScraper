@@ -25,8 +25,8 @@ def get_currencies():
     with wbdriver as driver:
         wait = WebDriverWait(driver,10)
         driver.get(url_currencies)
-        wait.until(presence_of_element_located((By.ID, "currency_container")))
-        result = driver.find_element_by_id('currency_container')
+        wait.until(presence_of_element_located((By.ID, "currency_container_table")))
+        result = driver.find_element_by_id('currency_container_table')
         soup = BeautifulSoup(result.get_attribute('innerHTML'), 'html.parser')
         rows = soup.find_all('tr')
         for row in rows[2:]:
@@ -54,7 +54,7 @@ def get_currencies():
             }
             if not [x for x in currencies if x["name"]==currency_name_short or x["fullName"]==currency_name]:
                 currencies.append(currency)
-        print(currencies)
+        print(len(currencies))
         return currencies
 
 def send_cuurency():

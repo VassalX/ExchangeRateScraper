@@ -34,7 +34,7 @@ def get_currencies():
             currency_name_short = tds[0].a.string.split("/")[1]
             country = tds[1].string.strip().replace('-','')
             currency_name = tds[2].a.string
-            growth = float(tds[4].span.string)
+            growth = float(tds[4].span.string.replace(',','').strip())
             price = float(tds[5].string.replace(',','').strip())
             timestamp = 0
             if not tds[6].find_all('span'):

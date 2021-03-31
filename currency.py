@@ -43,12 +43,14 @@ def get_currencies():
             else:
                 timestamp = datetime.strptime(tds[6].find_all('span')[1].string, \
                     "%m/%d/%Y %I:%M:%S %p UTC%z").timestamp()
+            if not price or price == 0:
+                continue
             currency = {
                 "name": currency_name_short,
                 "country": country,
                 "fullName": currency_name,
                 "growth": growth,
-                "price": price,
+                "price": 1/price,
                 "lastUpdateTimestamp": timestamp,
                 "type": "cryptocurrency" if not country else "currency"
             }
